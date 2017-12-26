@@ -457,6 +457,8 @@ set(draco_io_sources
     "${draco_src_root}/io/mesh_io.h"
     "${draco_src_root}/io/obj_decoder.cc"
     "${draco_src_root}/io/obj_decoder.h"
+    "${draco_src_root}/io/rbx_decoder.cc"
+    "${draco_src_root}/io/rbx_decoder.h"
     "${draco_src_root}/io/obj_encoder.cc"
     "${draco_src_root}/io/obj_encoder.h"
     "${draco_src_root}/io/parser_utils.cc"

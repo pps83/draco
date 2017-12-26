@@ -19,12 +19,21 @@
 #include "draco/io/obj_decoder.h"
 #include "draco/io/parser_utils.h"
 #include "draco/io/ply_decoder.h"
+#include "draco/io/rbx_decoder.h"
 
 namespace draco {
 
 StatusOr<std::unique_ptr<PointCloud>> ReadPointCloudFromFile(
     const std::string &file_name) {
   std::unique_ptr<PointCloud> pc(new PointCloud());
+  if (RbxDecoder::CheckRbxHeader(file_name))
+  {
+    // Wavefront OBJ file format.
+    RbxDecoder obj_decoder;
+    if (!obj_decoder.DecodeFromFile(file_name, pc.get()))
+      return Status(Status::ERROR, "Unknown error.");
+    return std::move(pc);
+  }
   // Analyze file extension.
   const std::string extension = parser::ToLower(
       file_name.size() >= 4 ? file_name.substr(file_name.size() - 4)

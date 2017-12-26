@@ -19,6 +19,7 @@
 #include "draco/io/obj_decoder.h"
 #include "draco/io/parser_utils.h"
 #include "draco/io/ply_decoder.h"
+#include "draco/io/rbx_decoder.h"
 
 namespace draco {
 
@@ -41,6 +42,15 @@ StatusOr<std::unique_ptr<Mesh>> ReadMeshFromFile(const std::string &file_name) {
 StatusOr<std::unique_ptr<Mesh>> ReadMeshFromFile(const std::string &file_name,
                                                  bool use_metadata) {
   std::unique_ptr<Mesh> mesh(new Mesh());
+  if (RbxDecoder::CheckRbxHeader(file_name))
+  {
+    // Wavefront OBJ file format.
+    RbxDecoder obj_decoder;
+    obj_decoder.set_use_metadata(use_metadata);
+    if (!obj_decoder.DecodeFromFile(file_name, mesh.get()))
+      return Status(Status::ERROR, "Unknown error.");
+    return std::move(mesh);
+  }
   // Analyze file extension.
   const std::string extension = LowercaseFileExtension(file_name);
   if (extension == "obj") {
