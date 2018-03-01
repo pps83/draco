@@ -71,69 +71,69 @@ class Options {
   std::map<std::string, std::string> options_;
 };
 
-template <typename DataTypeT>
-void Options::SetVector(const std::string &name, const DataTypeT *vec,
-                        int num_dims) {
-  std::string out;
-  for (int i = 0; i < num_dims; ++i) {
-    if (i > 0)
-      out += " ";
-
-// GNU STL on android doesn't include a proper std::to_string, but the libc++
-// version does
-#if defined(ANDROID) && !defined(_LIBCPP_VERSION)
-    out += to_string(vec[i]);
-#else
-    out += std::to_string(vec[i]);
-#endif
-  }
-  options_[name] = out;
-}
-
-template <class VectorT>
-VectorT Options::GetVector(const std::string &name,
-                           const VectorT &default_val) const {
-  VectorT ret = default_val;
-  GetVector(name, VectorT::dimension, &ret[0]);
-  return ret;
-}
-
-template <typename DataTypeT>
-bool Options::GetVector(const std::string &name, int num_dims,
-                        DataTypeT *out_val) const {
-  const auto it = options_.find(name);
-  if (it == options_.end())
-    return false;
-  const std::string value = it->second;
-  if (value.length() == 0)
-    return true;  // Option set but no data is present
-  const char *act_str = value.c_str();
-  char *next_str;
-  for (int i = 0; i < num_dims; ++i) {
-    if (std::is_integral<DataTypeT>::value) {
-#ifdef ANDROID
-      const int val = strtol(act_str, &next_str, 10);
-#else
-      const int val = std::strtol(act_str, &next_str, 10);
-#endif
-      if (act_str == next_str)
-        return true;  // End reached.
-      act_str = next_str;
-      out_val[i] = static_cast<DataTypeT>(val);
-    } else {
-#ifdef ANDROID
-      const float val = strtof(act_str, &next_str);
-#else
-      const float val = std::strtof(act_str, &next_str);
-#endif
-      if (act_str == next_str)
-        return true;  // End reached.
-      act_str = next_str;
-      out_val[i] = static_cast<DataTypeT>(val);
-    }
-  }
-  return true;
-}
+//template <typename DataTypeT>
+//void Options::SetVector(const std::string &name, const DataTypeT *vec,
+//                        int num_dims) {
+//  std::string out;
+//  for (int i = 0; i < num_dims; ++i) {
+//    if (i > 0)
+//      out += " ";
+//
+//// GNU STL on android doesn't include a proper std::to_string, but the libc++
+//// version does
+//#if defined(ANDROID) && !defined(_LIBCPP_VERSION)
+//    out += to_string(vec[i]);
+//#else
+//    out += std::to_string(vec[i]);
+//#endif
+//  }
+//  options_[name] = out;
+//}
+//
+//template <class VectorT>
+//VectorT Options::GetVector(const std::string &name,
+//                           const VectorT &default_val) const {
+//  VectorT ret = default_val;
+//  GetVector(name, VectorT::dimension, &ret[0]);
+//  return ret;
+//}
+//
+//template <typename DataTypeT>
+//bool Options::GetVector(const std::string &name, int num_dims,
+//                        DataTypeT *out_val) const {
+//  const auto it = options_.find(name);
+//  if (it == options_.end())
+//    return false;
+//  const std::string value = it->second;
+//  if (value.length() == 0)
+//    return true;  // Option set but no data is present
+//  const char *act_str = value.c_str();
+//  char *next_str;
+//  for (int i = 0; i < num_dims; ++i) {
+//    if (std::is_integral<DataTypeT>::value) {
+//#ifdef ANDROID
+//      const int val = strtol(act_str, &next_str, 10);
+//#else
+//      const int val = std::strtol(act_str, &next_str, 10);
+//#endif
+//      if (act_str == next_str)
+//        return true;  // End reached.
+//      act_str = next_str;
+//      out_val[i] = static_cast<DataTypeT>(val);
+//    } else {
+//#ifdef ANDROID
+//      const float val = strtof(act_str, &next_str);
+//#else
+//      const float val = std::strtof(act_str, &next_str);
+//#endif
+//      if (act_str == next_str)
+//        return true;  // End reached.
+//      act_str = next_str;
+//      out_val[i] = static_cast<DataTypeT>(val);
+//    }
+//  }
+//  return true;
+//}
 
 }  // namespace draco
 

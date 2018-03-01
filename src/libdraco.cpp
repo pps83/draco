@@ -16,6 +16,53 @@
 #define DRACO_BACKWARDS_COMPATIBILITY_SUPPORTED
 #define DRACO_ATTRIBUTE_DEDUPLICATION_SUPPORTED
 
+#ifdef __ANDROID__
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <ios>
+#include <string>
+#include <cstdlib>
+#include <android/api-level.h>
+#if __ANDROID_API__ < 18
+static inline double log2(double n)
+{
+    return log(n) * M_LOG2E;
+}
+#endif
+
+namespace std
+{
+    static inline string to_string(float val_) // convert float to string
+    {
+#ifdef _MSC_VER
+        int len_ = _CSTD _scprintf("%f", val_);
+        string str_(len_ + 1, '\0');
+        _CSTD sprintf_s(&str_[0], len_ + 1, _Fmt, val_);
+#else
+        int len_ = snprintf(NULL, 0, "%f", val_);
+        string str_(len_ + 1, '\0');
+        snprintf(&str_[0], len_ + 1, "%f", val_);
+#endif
+        str_.resize(len_);
+        return str_;
+    }
+
+    static inline string to_string(int val_) // convert int to string
+    {
+        string str_(21, '\0');
+#ifdef _MSC_VER
+        int len_ = _CSTD sprintf_s(&str_[0], 21, "%d", val_);
+#else
+        int len_ = snprintf(&str_[0], 21, "%d", val_);
+#endif
+        str_.resize(len_);
+        return str_;
+    }
+
+    using ::strtof;
+}
+#endif
+
 #include "draco/core/cycle_timer.cc"
 #include "draco/core/data_buffer.cc"
 #include "draco/core/decoder_buffer.cc"

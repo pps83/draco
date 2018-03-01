@@ -80,4 +80,60 @@ std::string Options::GetString(const std::string &name,
   return it->second;
 }
 
+template <typename DataTypeT>
+void Options::SetVector(const std::string &name, const DataTypeT *vec,
+                        int num_dims) {
+  std::string out;
+  for (int i = 0; i < num_dims; ++i) {
+    if (i > 0)
+      out += " ";
+
+    out += std::to_string(vec[i]);
+  }
+  options_[name] = out;
+}
+
+template <class VectorT>
+VectorT Options::GetVector(const std::string &name,
+                           const VectorT &default_val) const {
+  VectorT ret = default_val;
+  GetVector(name, VectorT::dimension, &ret[0]);
+  return ret;
+}
+
+template <typename DataTypeT>
+bool Options::GetVector(const std::string &name, int num_dims,
+                        DataTypeT *out_val) const {
+  const auto it = options_.find(name);
+  if (it == options_.end())
+    return false;
+  const std::string value = it->second;
+  if (value.length() == 0)
+    return true;  // Option set but no data is present
+  const char *act_str = value.c_str();
+  char *next_str;
+  for (int i = 0; i < num_dims; ++i) {
+    if (std::is_integral<DataTypeT>::value) {
+      const int val = std::strtol(act_str, &next_str, 10);
+      if (act_str == next_str)
+        return true;  // End reached.
+      act_str = next_str;
+      out_val[i] = static_cast<DataTypeT>(val);
+    } else {
+      const float val = std::strtof(act_str, &next_str);
+      if (act_str == next_str)
+        return true;  // End reached.
+      act_str = next_str;
+      out_val[i] = static_cast<DataTypeT>(val);
+    }
+  }
+  return true;
+}
+
+template bool Options::GetVector<float>(const std::string &name,
+  int num_dims, float *out_val) const;
+
+template void Options::SetVector<float>(const std::string &name,
+  const float *vec, int num_dims);
+
 }  // namespace draco
